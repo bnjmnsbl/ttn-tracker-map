@@ -3,36 +3,259 @@
 const serverUrl = 'https://bnjmn.uber.space';
 mapboxgl.accessToken = 'pk.eyJ1IjoiYm5qbW5zYmwiLCJhIjoiY2luc3Qxajk4MDBsY3Zza2x1MWg1b2xzeCJ9.BK1MmHruCVZvMFnL_uTC1w';
 
-const map = new mapboxgl.Map({
+//+++ MAP
+//+++ general setting for map appearance +++
+var map = new mapboxgl.Map({
   container: 'map',
-  style: 'mapbox://styles/mapbox/light-v10',
+  style: 'mapbox://styles/mapbox/light-v9',
   center: [13.404954, 52.520008],
-  zoom: 11,
-  minZoom: 8,
+  zoom: 14,
+  minZoom: 6,
   maxZoom: 18,
-  pitch: 45
+  pitch: 45, //angle from plane view
+  trackResize: true,
+  maxBounds: bounds
 });
 
+// Set bounds to Berlin
+var bounds = [
+  [52.470896, 13.290829], // Southwest coordinates
+  [52.550666, 13.487605]  // Northeast coordinates
+  ];
+
+// initialize the map canvas to interact with later for routing
+var canvas = map.getCanvasContainer();
+
+// initalize a starting point for routing
+var start = [52.52437, 13.41053];
+
+
+//+++ FUNCTIONS
+
+//+++ function to get route from one starting point to another point
+function getRoute(end) {
+  // make a directions request using cycling profile
+  // an arbitrary start will always be the same
+  // only the end or destination will change
+  var start = [52.52437, 13.41053];
+  var url = 'https://api.mapbox.com/directions/v5/mapbox/cycling/' + start[0] + ',' + start[1] + ';' + end[0] + ',' + end[1] + '?steps=true&geometries=geojson&access_token=' + mapboxgl.accessToken;
+
+  // make an XHR request https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+  var req = new XMLHttpRequest();
+
+  req.onreadystatechange = dataLoaded;
+
+  function dataLoaded()
+  {
+      if(this.readyState==4 && this.status==200)
+      {
+        req.responseType = 'json';
+        req.open('GET', url, true);
+        console.log(req.status);
+        req.onload = function() {
+          if(req.readyState === 4 && req.status === 200) {
+              var data = req.response.routes[0];
+              var route = data.geometry.coordinates;
+              var geojson = {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'LineString',
+                coordinates: route
+              }
+            };
+          }
+          else{
+            console.log("Request status error --> not loaded or not done")
+            console.log("status:", req.status);
+          }
+
+          // if the route already exists on the map, reset it using setData
+          if (map.getSource('route')) {
+            map.getSource('route').setData(geojson);
+          }
+          else { // otherwise, make a new request
+            map.addLayer({
+              id: 'route',
+              type: 'line',
+              source: {
+                type: 'geojson',
+                data: {
+                  type: 'Feature',
+                  properties: {},
+                  geometry: {
+                    type: 'LineString',
+                    coordinates: geojson
+                  }
+                }
+              },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              },
+              paint: {
+                'line-color': '#3887be',
+                'line-width': 5,
+                'line-opacity': 0.75
+              }
+            });
+          }
+          // add turn instructions here at the end
+        };
+        req.send();
+      }
+      else
+      {
+          console.log("Error with request");
+      }
+  }
+}
+
+map.on('load', function(){
+  // make an initial directions request that
+  // starts and ends at the same location
+  getRoute(start);
+
+  // Add starting point to the map
+  map.addLayer({
+    id: 'point',
+    type: 'circle',
+    source: {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: [{
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'Point',
+            coordinates: start
+          }
+        }
+        ]
+      }
+    },
+    paint: {
+      'circle-radius': 10,
+      'circle-color': '#3887be'
+    }
+  });
+
+  // second function to add a destination by clicking on the map
+  map.on('click', function(e) {
+    var coordsObj = e.lngLat;
+    canvas.style.cursor = '';
+    var coords = Object.keys(coordsObj).map(function(key) {
+      return coordsObj[key];
+    });
+    var end = {
+      type: 'FeatureCollection',
+      features: [{
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'Point',
+          coordinates: coords
+        }
+      }
+      ]
+    };
+    if (map.getLayer('end')) {
+      map.getSource('end').setData(end);
+    } else {
+      map.addLayer({
+        id: 'end',
+        type: 'circle',
+        source: {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [{
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'Point',
+                coordinates: coords
+              }
+            }]
+          }
+        },
+        paint: {
+          'circle-radius': 10,
+          'circle-color': '#f30'
+        }
+      });
+    }
+    getRoute(coords);
+  });
+
+});
+
+
+// +++ function to user location on the map (blue dot) +++
+map.addControl(new mapboxgl.GeolocateControl({
+  positionOptions: {
+      enableHighAccuracy: true
+  },
+  trackUserLocation: true,
+  showUserLocation: true
+}));
+
+// +++ function to show metric scale in the bottom left
+var scale = new mapboxgl.ScaleControl({
+  maxWidth: 320,
+  unit: 'metric'
+});
+
+map.addControl(scale);
+scale.setUnit('metric');
+
+// +++ function to add pulsing dot for tracker node
 map.on('load', async function () {
+    const coords = await getData();
+    const labelLayerId = getlabelLayerId();
+    const pulsingDot = getPulsingDot();
 
-  const coords = await getData();
-  const labelLayerId = getlabelLayerId();
-  const pulsingDot = getPulsingDot();
+    add3dbuildingLayer(labelLayerId);
+    addPulsingDot(pulsingDot, coords);
 
-  add3dbuildingLayer(labelLayerId);
-  addPulsingDot(pulsingDot, coords);
 
-  //   function updateMarker () {
 
-  //   }
+    //   function updateMarker () {
+          //if myCoords.timestamp.getData() > ....
+    //   }
 
-  map.jumpTo({ 'center': coords});
+
+
+    // +++ function to set color of buildings by zooming in and out
+    map.setPaintProperty('building', 'fill-color', [
+      "interpolate",
+      ["exponential", 0.5],
+      ["zoom"],
+      15,
+      "rgba(49, 96, 227, 1)",
+      22,
+      "rgba(49, 96, 227, 0.5)"
+      ]);
+        
+    map.setPaintProperty('building', 'fill-opacity', [
+      "interpolate",
+      ["exponential", 0.5],
+      ["zoom"],
+      15,
+      0,
+      22,
+      1
+      ]);
+
+    // +++ jump to location of tracker node
+    map.jumpTo({ 'center': coords});
+
 });
 
 
-
-
-// FUNCTIONS
+//+++ adds navigation control to zoom in and out
+map.addControl(new mapboxgl.NavigationControl());
 
 function getlabelLayerId() {
 
@@ -87,8 +310,9 @@ function add3dbuildingLayer(labelLayerId) {
   );
 }
 
+//+++ add pulsing dot for the lora node (magenta dot)
 function getPulsingDot() {
-  const size = 80;
+  const size = 120;
 
   const pulsingDot = {
     width: size,
@@ -103,7 +327,7 @@ function getPulsingDot() {
     },
 
     render: function() {
-      var duration = 1000;
+      var duration = 1500;
       var t = (performance.now() % duration) / duration;
 
       var radius = (size / 2) * 0.3;
@@ -174,7 +398,7 @@ function addPulsingDot(pulsingDot, coords) {
 
 }
 
-
+//here is where the ttn payload will be parsed as JSON
 async function getData() {
   const response = await fetch(serverUrl + '/api/payloads/5d80cd11c3e0d3dd431092bf');
   const myJson = await response.json();
@@ -212,3 +436,4 @@ function findLastValidCoords(arr) {
     }
   }
 }
+
