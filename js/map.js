@@ -61,163 +61,145 @@ scale.setUnit('metric');
 
 
 //+++ function to get route from starting point (Node) to another point (User)
-async function getRoute(end) {
+function getRoute(end) {
   // make a directions request using cycling profile
   // start will always be the GPSnode -- only the end or destination will change
-  var start = await getData();
+  var start = [52.52437, 13.41053];
   console.log(start);
 
   var url = 'https://api.mapbox.com/directions/v5/mapbox/cycling/' + start[0] + ',' + start[1] + ';' + end[0] + ',' + end[1] + '?steps=true&geometries=geojson&access_token=' + mapboxgl.accessToken;
-
   console.log(url);
 
   // make an XHR request https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
   var req = new XMLHttpRequest();
-  req.responseType = 'json';
-
-      if(req.readyState==0 && req.status==0)
-      {
-        req.open('GET', url, true);
-        console.log(req.status);
-        req.onload = function() {
-          if(req.readyState === 4 && req.status === 200) {
-              var data = req.response.routes[0];
-              var route = data.geometry.coordinates;
-              var geojson = {
+    req.responseType = 'json';
+    req.open('GET', url, true);
+    req.onload = function() {
+      var data = req.response.routes[0];
+      console.log(data);
+      var route = data.geometry.coordinates;
+      console.log(route);
+      var geojson = {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: route
+        }
+      };
+      // if the route already exists on the map, reset it using setData
+      if (map.getSource('route')) {
+        map.getSource('route').setData(geojson);
+      } else { // otherwise, make a new request
+        map.addLayer({
+          id: 'route',
+          type: 'line',
+          source: {
+            type: 'geojson',
+            data: {
               type: 'Feature',
               properties: {},
               geometry: {
                 type: 'LineString',
-                coordinates: route
+                coordinates: geojson
               }
-            };
+            }
+          },
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          paint: {
+            'line-color': '#3887be',
+            'line-width': 5,
+            'line-opacity': 0.75
           }
-          else{
-            console.log("Request status error --> not loaded or not done")
-            console.log("status:", req.status);
-          }
-
-          // if the route already exists on the map, reset it using setData
-          if (map.getSource('route')) {
-            map.getSource('route').setData(geojson);
-          }
-          else { // otherwise, make a new request
-            map.addLayer({
-              id: 'route',
-              type: 'line',
-              source: {
-                type: 'geojson',
-                data: {
-                  type: 'Feature',
-                  properties: {},
-                  geometry: {
-                    type: 'LineString',
-                    coordinates: geojson
-                  }
-                }
-              },
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              },
-              paint: {
-                'line-color': '#3887be',
-                'line-width': 5,
-                'line-opacity': 0.75
-              }
-            });
-          }
-          // add turn instructions here at the end
-        };
-        req.send();
+        });
       }
-      else
-      {
-          console.log("Error with request");
+      // add turn instructions here at the end
+    };
+    req.send();
+}
+
+map.on('load', function() {
+    // make an initial directions request that
+    // starts and ends at the same location
+    getRoute(start);
+  
+    // Add starting point to the map
+    map.addLayer({
+      id: 'start',
+      type: 'circle',
+      source: {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [{
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'Point',
+              coordinates: start
+            }
+          }
+          ]
+        }
+      },
+      paint: {
+        'circle-radius': 10,
+        'circle-color': '#3887be'
       }
-  }
-
-map.on('load', function(){
-  // make an initial directions request that
-  // starts and ends at the same location
-  getRoute(start);
-
-  // Add starting point to the map
-  map.addLayer({
-    id: 'point',
-    type: 'circle',
-    source: {
-      type: 'geojson',
-      data: {
+    });
+    
+    map.on('click', function(e) {
+      var coordsObj = e.lngLat;
+      console.log('destination:  ',coordsObj);
+      canvas.style.cursor = '';
+      var endCoords = Object.keys(coordsObj).map(function(key) {
+        return coordsObj[key];
+      });
+      console.log('Koordinaten destina  tion: ', endCoords);
+      var end = {
         type: 'FeatureCollection',
         features: [{
           type: 'Feature',
           properties: {},
           geometry: {
             type: 'Point',
-            coordinates: start
+            coordinates: endCoords
           }
         }
         ]
-      }
-    },
-    paint: {
-      'circle-radius': 10,
-      'circle-color': '#3887be'
-    }
-  });
-
-  // second function to add a destination by clicking on the map
-  map.on('click', function(e) {
-    var endCoords = getUserLoc();
-    var coordsObj = e.lngLat;
-    canvas.style.cursor = '';
-    varw = Object.keys(coordsObj).map(function(key) {
-      return coordsObj[key];
-    });
-    var end = {
-      type: 'FeatureCollection',
-      features: [{
-        type: 'Feature',
-        properties: {},
-        geometry: {
-          type: 'Point',
-          coordinates: endCoords
-        }
-      }
-      ]
-    };
-    if (map.getLayer('end')) {
-      map.getSource('end').setData(end);
-    } else {
-      map.addLayer({
-        id: 'end',
-        type: 'circle',
-        source: {
-          type: 'geojson',
-          data: {
-            type: 'FeatureCollection',
-            features: [{
-              type: 'Feature',
-              properties: {},
-              geometry: {
-                type: 'Point',
-                coordinates: getUserLoc()
-              }
-            }]
+      };
+      if (map.getLayer('end')) {
+        map.getSource('end').setData(end);
+      } else {
+        map.addLayer({
+          id: 'end',
+          type: 'circle',
+          source: {
+            type: 'geojson',
+            data: {
+              type: 'FeatureCollection',
+              features: [{
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                  type: 'Point',
+                  coordinates: endCoords
+                }
+              }]
+            }
+          },
+          paint: {
+            'circle-radius': 10,
+            'circle-color': '#f30'
           }
-        },
-        paint: {
-          'circle-radius': 10,
-          'circle-color': '#f30'
-        }
-      });
-    }
-    getRoute(coords);
+        });
+      }
+      getRoute(endCoords);
+    });    
   });
-
-});
-
 
 // +++ function to add pulsing dot for tracker node
 map.on('load', async function () {
