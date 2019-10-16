@@ -6,8 +6,9 @@ body { margin:0; padding:0; }
         right: 0;
         z-index: 30;
         top: 0;
-        width: 80%;
-        display: inline-block;
+        width: 90%;
+        display: flex;
+        align-content: space-around;
         vertical-align: top;
 }
 
@@ -22,7 +23,7 @@ body { margin:0; padding:0; }
 
 
 /* info box at the top of the website */
-#zoom  {
+#zoomBtn  {
     display: inline-block;
     position: relative;
     margin: 2em auto;
@@ -34,8 +35,11 @@ body { margin:0; padding:0; }
     text-align: center;
     color: #fff;
     background:rgba(255, 100, 100, 1);
-    margin-left: 40em 
     }
+
+#zoomBtn:hover{
+    cursor: pointer;
+}
 
 #map {
     position: absolute;

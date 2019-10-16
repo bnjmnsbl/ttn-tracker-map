@@ -5,11 +5,11 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiYm5qbW5zYmwiLCJhIjoiY2luc3Qxajk4MDBsY3Zza2x1M
 
 //+++ MAP
 //+++ general setting for map appearance +++
-var map = new mapboxgl.Map({
+const map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/mapbox/light-v9',
   center: [13.404954, 52.520008],
-  zoom: 14,
+  zoom: 12,
   minZoom: 6,
   maxZoom: 18,
   pitch: 45, //angle from plane view
@@ -32,24 +32,51 @@ var start = [52.52437, 13.41053];
 
 //+++ FUNCTIONS
 
-//+++ function to get route from one starting point to another point
-function getRoute(end) {
+
+// +++ function to user location on the map (blue dot) +++
+// +++  important: only works within save environment (https or localhost) +++
+map.addControl(geoLocate = new mapboxgl.GeolocateControl({
+  positionOptions: {
+      enableHighAccuracy: true
+  },
+  trackUserLocation: true,
+  showUserLocation: true
+}));
+
+// +++ zoom in part
+// +++ prperty center has to be nodeCoords
+geoLocate.on('geolocate', function() {
+  map.zoomIn({
+    zoom: 20
+  });
+});
+
+// +++ function to show metric scale in the bottom left
+var scale = new mapboxgl.ScaleControl({
+  maxWidth: 320,
+  unit: 'metric'
+});
+map.addControl(scale);
+scale.setUnit('metric');
+
+
+//+++ function to get route from starting point (Node) to another point (User)
+async function getRoute(end) {
   // make a directions request using cycling profile
-  // an arbitrary start will always be the same
-  // only the end or destination will change
-  var start = [52.52437, 13.41053];
+  // start will always be the GPSnode -- only the end or destination will change
+  var start = await getData();
+  console.log(start);
+
   var url = 'https://api.mapbox.com/directions/v5/mapbox/cycling/' + start[0] + ',' + start[1] + ';' + end[0] + ',' + end[1] + '?steps=true&geometries=geojson&access_token=' + mapboxgl.accessToken;
+
+  console.log(url);
 
   // make an XHR request https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
   var req = new XMLHttpRequest();
+  req.responseType = 'json';
 
-  req.onreadystatechange = dataLoaded;
-
-  function dataLoaded()
-  {
-      if(this.readyState==4 && this.status==200)
+      if(req.readyState==0 && req.status==0)
       {
-        req.responseType = 'json';
         req.open('GET', url, true);
         console.log(req.status);
         req.onload = function() {
@@ -109,7 +136,6 @@ function getRoute(end) {
           console.log("Error with request");
       }
   }
-}
 
 map.on('load', function(){
   // make an initial directions request that
@@ -143,9 +169,10 @@ map.on('load', function(){
 
   // second function to add a destination by clicking on the map
   map.on('click', function(e) {
+    var endCoords = getUserLoc();
     var coordsObj = e.lngLat;
     canvas.style.cursor = '';
-    var coords = Object.keys(coordsObj).map(function(key) {
+    varw = Object.keys(coordsObj).map(function(key) {
       return coordsObj[key];
     });
     var end = {
@@ -155,7 +182,7 @@ map.on('load', function(){
         properties: {},
         geometry: {
           type: 'Point',
-          coordinates: coords
+          coordinates: endCoords
         }
       }
       ]
@@ -175,7 +202,7 @@ map.on('load', function(){
               properties: {},
               geometry: {
                 type: 'Point',
-                coordinates: coords
+                coordinates: getUserLoc()
               }
             }]
           }
@@ -192,40 +219,22 @@ map.on('load', function(){
 });
 
 
-// +++ function to user location on the map (blue dot) +++
-map.addControl(new mapboxgl.GeolocateControl({
-  positionOptions: {
-      enableHighAccuracy: true
-  },
-  trackUserLocation: true,
-  showUserLocation: true
-}));
-
-// +++ function to show metric scale in the bottom left
-var scale = new mapboxgl.ScaleControl({
-  maxWidth: 320,
-  unit: 'metric'
-});
-
-map.addControl(scale);
-scale.setUnit('metric');
-
 // +++ function to add pulsing dot for tracker node
 map.on('load', async function () {
-    const coords = await getData();
+    const nodeCoords = await getData();
     const labelLayerId = getlabelLayerId();
     const pulsingDot = getPulsingDot();
 
     add3dbuildingLayer(labelLayerId);
-    addPulsingDot(pulsingDot, coords);
+    addPulsingDot(pulsingDot, nodeCoords);
+  
 
-
+  // +++ jump to location of tracker node
+    map.jumpTo({ 'center': nodeCoords});
 
     //   function updateMarker () {
           //if myCoords.timestamp.getData() > ....
     //   }
-
-
 
     // +++ function to set color of buildings by zooming in and out
     map.setPaintProperty('building', 'fill-color', [
@@ -248,9 +257,14 @@ map.on('load', async function () {
       1
       ]);
 
-    // +++ jump to location of tracker node
-    map.jumpTo({ 'center': coords});
-
+    // ++ function to zoom in by clicking on button
+    document.getElementById("zoomBtn").addEventListener('click', async function(){
+      var nodeCoords = await getData();
+      map.flyTo({
+        center: [nodeCoords[0], nodeCoords[1]],   
+        zoom: 20
+      });
+    });
 });
 
 
@@ -400,12 +414,32 @@ function addPulsingDot(pulsingDot, coords) {
 
 //here is where the ttn payload will be parsed as JSON
 async function getData() {
-  const response = await fetch(serverUrl + '/api/payloads/5d80cd11c3e0d3dd431092bf');
+  const response = await fetch(serverUrl + '/api/payloads/5da57802729dac6e5dc87c4c');
   const myJson = await response.json();
-  let lastCoords = findLastValidCoords(myJson);
-  return lastCoords;
-
+  // findLastValidCoords(myJson.reverse()); would return first data
+  let validCoords = findLastValidCoords(myJson);
+  return validCoords;
 }
+
+function getUserLoc() {
+  if ("geolocation" in navigator) { 
+    navigator.geolocation.getCurrentPosition(position => { 
+        var lat = position.coords.latitude;
+        var long = position.coords.longitude; 
+        var result = [lat, long];
+        return result;
+    }); 
+  } else { /* geolocation IS NOT available, handle it */
+    popupBuild();
+  }
+}
+
+function popupBuild(){
+  var popup = new mapboxgl.Popup({closeOnClick: false})
+  .setLngLat([-96, 37.8])
+  .setHTML('<h1>Route wird erst angezeigt, wenn User Location aktiv ist</h1>')
+  .addTo(map);
+  }
 
 function findLastValidCoords(arr) {
   let i = arr.length-1;
