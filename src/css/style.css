@@ -1,25 +1,72 @@
 body { margin:0; padding:0; }
 
-#navbar {
-        left: 0;
-        position: fixed;
-        right: 0;
-        z-index: 30;
-        top: 0;
-        width: 90%;
-        display: flex;
-        align-content: space-around;
-        vertical-align: top;
+html *
+{
+   font-size: 1em !important;
+   font-family: Helvetica,Arial,sans-serif !important;
 }
+
+#map{
+    max-width: 78%;
+    position: absolute;
+    top:0;
+    bottom:0;
+    width:100%;
+}
+
+.sidebar{
+    height: 100%;
+    width: 22%;
+    position: fixed;
+    margin-top: 2.2em;
+    z-index: 1;
+    top: 0;
+    right: 0;
+    overflow-x: hidden;
+    background-color: rgb(255, 255, 255);
+}
+
+
+.menu {
+    padding-left: 1.8em;
+    padding-right: 1.8em;
+}
+
+.menuBtn {
+    display: flex;
+    position: relative;
+    height: 3.6 em;
+    padding: 1em 2em; 
+    border: none;
+    border-radius: 5px;
+    font-size: 12px;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    background:rgb(194, 194, 194);
+}
+
+#navbar {
+    max-width: 70%;
+    left: 0;
+    position: fixed;
+    right: 0;
+    z-index: 30;
+    top: 0;
+    width: 90%;
+    display: flex;
+    align-content: space-around;
+    vertical-align: top;
+    }
 
 
 .lablogo {
     display: inline-block;
     vertical-align: top;
-    height: 50px;
+    height: 40px;
     margin-left: 1.8em;
     margin-top: 1.8em;  
-}
+    }
 
 
 /* info box at the top of the website */
@@ -27,11 +74,11 @@ body { margin:0; padding:0; }
     display: inline-block;
     position: relative;
     margin: 2em auto;
-    height: 4em;
-    padding: 10px 20px 10px 20px;
+    height: 3em;
+    padding: 0.2em 1em 0.2em 1em;
     border: none;
     border-radius: 5px;
-    font-size: 14px;
+    font-size: 8px;
     text-align: center;
     color: #fff;
     background:rgba(255, 100, 100, 1);
@@ -39,30 +86,23 @@ body { margin:0; padding:0; }
 
 #zoomBtn:hover{
     cursor: pointer;
-}
-
-#map {
-    position: absolute;
-    top:0;
-    bottom:0;
-    width:100%;
-}
-
+    }
 
 .mapboxgl-ctrl-top-right {
-    width: 40px;
-    height: 40px;
     /* distance from browser window */
-    margin: 1.8em;
-}
-
+    margin: 1.5em 1.8em;
+    }
 .mapboxgl-ctrl-group > button {
-    width: 40px;
-    height: 40px;
-    margin: 1em;
+    margin: 0.6em;
+    }
+
+.mapboxgl-ctrl-bottom-left {
+    margin-left: 1.8em;
+    }
+
+.mapboxgl-ctrl-scale{
+    max-width: 16em;
 }
-
-
 
 
 /* scalecontrol at the bottom left of the website */
@@ -76,4 +116,4 @@ body { margin:0; padding:0; }
     padding: 0 10px;
     color: #333;
     box-sizing: border-box;
-}
+    }
