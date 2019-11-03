@@ -20,19 +20,21 @@
   <body>
     <div class="sidebar">
       <div class="menu">
-
-        <span id="1" class="menuBtn">Select Tracker</span>
+        <span id="1" class="menuBtn" onclick='selectTracker()'>Select Tracker</span>
         <span id="2" class="menuBtn">Select City</span>
         <span id="3" class="menuBtn">Select Date</span>
       </div>
         
-      <div class="about">
-        <span >
+      <div class="footer">
+
+        <span class="about">About</span>
+        <span class="slash">|</span>
+        <span class="impressum">Impressum</span>
       </div> 
 
     </div>
 
-      <div id="map"></div>
+    <div id="map"></div>
 
     <nav id="navbar">
       <a class="navbar-item" href="https://www.citylab-berlin.org" target="_blank">
@@ -42,8 +44,6 @@
 
       </a>
     </nav>
-
-
 
     <script src="main.js">
     </script>

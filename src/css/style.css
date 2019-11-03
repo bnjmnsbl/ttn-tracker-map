@@ -1,12 +1,11 @@
 body { margin:0; padding:0; }
 
-html *
-{
-   font-size: 1em !important;
+html * {
+   font-size: 14px !important;
    font-family: Helvetica,Arial,sans-serif !important;
 }
 
-#map{
+#map {
     max-width: 78%;
     position: absolute;
     top:0;
@@ -28,31 +27,34 @@ html *
 
 
 .menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     padding-left: 1.8em;
     padding-right: 1.8em;
+    height: 25%
 }
 
 .menuBtn {
     display: flex;
-    position: relative;
     height: 3.6 em;
     padding: 1em 2em; 
     border: none;
     border-radius: 5px;
-    font-size: 12px;
     justify-content: center;
     align-items: center;
     color: #fff;
     background:rgb(194, 194, 194);
 }
 
+.menuBtn:hover {cursor: pointer;}
+
 #navbar {
+    position: fixed;
     max-width: 70%;
     left: 0;
-    position: fixed;
     right: 0;
     z-index: 30;
-    top: 0;
     width: 90%;
     display: flex;
     align-content: space-around;
@@ -102,6 +104,35 @@ html *
 
 .mapboxgl-ctrl-scale{
     max-width: 16em;
+}
+
+
+.footer{
+    position: fixed;
+    display: inline-block; 
+    text-align: center;
+    bottom: 0;
+    right: 0;
+    height: 8%;
+    width: 22%;
+    color: rgb(194, 194, 194);
+    padding-left: 1.8em;
+    padding-right: 1.8em;
+
+}
+
+.about{
+    position: relative;
+
+}
+
+.slash{
+    margin-left: 0.75em;
+}
+
+.impressum{
+    margin-left:0.75em;
+    position: absolute;
 }
 
 
