@@ -20,3 +20,9 @@ webpack dev server is running on localhost:9000 and can be started by command
 ```
 npm start
 ```
+
+## Outlook
+- add features to sidebar
+- generate about page
+- implement routing
+- use Bulma as css framework
