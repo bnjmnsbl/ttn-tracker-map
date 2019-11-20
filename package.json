@@ -2,17 +2,34 @@
   "name": "ttn_tracker_map",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev":"netlify dev"
+    "tesnt": "echo \"Error: no test specified\" && exit 1",
+    "dev": "netlify dev",
+    "build": "webpack",
+    "watch": "webpack --watch",
+    "start": "webpack-dev-server --open",
+    "lint": "eslint './src/**/*.js'",
+    "prettier:list": "npm run prettier -- --list-different",
+    "prettier": "prettier \"**/*.+(js|json|yml|yaml|ts)\"",
+    "prettier:write": "npm run prettier -- --write",
+    "prebuild": "npm run lint && npm run prettier:write"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "mapbox-gl": "^1.5.0"
   },
   "devDependencies": {
+    "copy-webpack-plugin": "^5.0.4",
+    "css-loader": "^3.2.0",
+    "eslint": "^6.6.0",
     "http-server": "^0.11.1",
-    "netlify-cli": "^2.20.1"
+    "netlify-cli": "^2.20.1",
+    "prettier": "1.18.2",
+    "style-loader": "^1.0.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.9.0"
   }
 }

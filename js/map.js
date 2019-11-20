@@ -1,7 +1,8 @@
 /* eslint-disable no-undef */
 
 const serverUrl = 'https://bnjmn.uber.space';
-mapboxgl.accessToken = 'pk.eyJ1IjoiYm5qbW5zYmwiLCJhIjoiY2luc3Qxajk4MDBsY3Zza2x1MWg1b2xzeCJ9.BK1MmHruCVZvMFnL_uTC1w';
+mapboxgl.accessToken =
+  'pk.eyJ1IjoiYm5qbW5zYmwiLCJhIjoiY2luc3Qxajk4MDBsY3Zza2x1MWg1b2xzeCJ9.BK1MmHruCVZvMFnL_uTC1w';
 
 //+++ MAP
 //+++ general setting for map appearance +++
@@ -14,14 +15,14 @@ const map = new mapboxgl.Map({
   maxZoom: 18,
   pitch: 45, //angle from plane view
   trackResize: true,
-  maxBounds: bounds
+  maxBounds: bounds,
 });
 
 // Set bounds to Berlin
 var bounds = [
   [52.470896, 13.290829], // Southwest coordinates
-  [52.550666, 13.487605]  // Northeast coordinates
-  ];
+  [52.550666, 13.487605], // Northeast coordinates
+];
 
 // initialize the map canvas to interact with later for routing
 var canvas = map.getCanvasContainer();
@@ -29,36 +30,35 @@ var canvas = map.getCanvasContainer();
 // initalize a starting point for routing
 var start = [52.52437, 13.41053];
 
-
 //+++ FUNCTIONS
-
 
 // +++ function to user location on the map (blue dot) +++
 // +++  important: only works within save environment (https or localhost) +++
-map.addControl(geoLocate = new mapboxgl.GeolocateControl({
-  positionOptions: {
-      enableHighAccuracy: true
-  },
-  trackUserLocation: true,
-  showUserLocation: true
-}));
+map.addControl(
+  (geoLocate = new mapboxgl.GeolocateControl({
+    positionOptions: {
+      enableHighAccuracy: true,
+    },
+    trackUserLocation: true,
+    showUserLocation: true,
+  }))
+);
 
 // +++ zoom in part
 // +++ prperty center has to be nodeCoords
 geoLocate.on('geolocate', function() {
   map.zoomIn({
-    zoom: 20
+    zoom: 20,
   });
 });
 
 // +++ function to show metric scale in the bottom left
 var scale = new mapboxgl.ScaleControl({
   maxWidth: 320,
-  unit: 'metric'
+  unit: 'metric',
 });
 map.addControl(scale);
 scale.setUnit('metric');
-
 
 //+++ function to get route from starting point (Node) to another point (User)
 function getRoute(end) {
@@ -67,194 +67,208 @@ function getRoute(end) {
   var start = [52.52437, 13.41053];
   console.log(start);
 
-  var url = 'https://api.mapbox.com/directions/v5/mapbox/cycling/' + start[0] + ',' + start[1] + ';' + end[0] + ',' + end[1] + '?steps=true&geometries=geojson&access_token=' + mapboxgl.accessToken;
+  var url =
+    'https://api.mapbox.com/directions/v5/mapbox/cycling/' +
+    start[0] +
+    ',' +
+    start[1] +
+    ';' +
+    end[0] +
+    ',' +
+    end[1] +
+    '?steps=true&geometries=geojson&access_token=' +
+    mapboxgl.accessToken;
   console.log(url);
 
   // make an XHR request https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
   var req = new XMLHttpRequest();
-    req.responseType = 'json';
-    req.open('GET', url, true);
-    req.onload = function() {
-      var data = req.response.routes[0];
-      console.log(data);
-      var route = data.geometry.coordinates;
-      console.log(route);
-      var geojson = {
-        type: 'Feature',
-        properties: {},
-        geometry: {
-          type: 'LineString',
-          coordinates: route
-        }
-      };
-      // if the route already exists on the map, reset it using setData
-      if (map.getSource('route')) {
-        map.getSource('route').setData(geojson);
-      } else { // otherwise, make a new request
-        map.addLayer({
-          id: 'route',
-          type: 'line',
-          source: {
-            type: 'geojson',
-            data: {
-              type: 'Feature',
-              properties: {},
-              geometry: {
-                type: 'LineString',
-                coordinates: geojson
-              }
-            }
-          },
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round'
-          },
-          paint: {
-            'line-color': '#3887be',
-            'line-width': 5,
-            'line-opacity': 0.75
-          }
-        });
-      }
-      // add turn instructions here at the end
+  req.responseType = 'json';
+  req.open('GET', url, true);
+  req.onload = function() {
+    var data = req.response.routes[0];
+    console.log(data);
+    var route = data.geometry.coordinates;
+    console.log(route);
+    var geojson = {
+      type: 'Feature',
+      properties: {},
+      geometry: {
+        type: 'LineString',
+        coordinates: route,
+      },
     };
-    req.send();
+    // if the route already exists on the map, reset it using setData
+    if (map.getSource('route')) {
+      map.getSource('route').setData(geojson);
+    } else {
+      // otherwise, make a new request
+      map.addLayer({
+        id: 'route',
+        type: 'line',
+        source: {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'LineString',
+              coordinates: geojson,
+            },
+          },
+        },
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round',
+        },
+        paint: {
+          'line-color': '#3887be',
+          'line-width': 5,
+          'line-opacity': 0.75,
+        },
+      });
+    }
+    // add turn instructions here at the end
+  };
+  req.send();
 }
 
 map.on('load', function() {
-    // make an initial directions request that
-    // starts and ends at the same location
-    getRoute(start);
-  
-    // Add starting point to the map
-    map.addLayer({
-      id: 'start',
-      type: 'circle',
-      source: {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: [{
+  // make an initial directions request that
+  // starts and ends at the same location
+  getRoute(start);
+
+  // Add starting point to the map
+  map.addLayer({
+    id: 'start',
+    type: 'circle',
+    source: {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: [
+          {
             type: 'Feature',
             properties: {},
             geometry: {
               type: 'Point',
-              coordinates: start
-            }
-          }
-          ]
-        }
+              coordinates: start,
+            },
+          },
+        ],
       },
-      paint: {
-        'circle-radius': 10,
-        'circle-color': '#3887be'
-      }
+    },
+    paint: {
+      'circle-radius': 10,
+      'circle-color': '#3887be',
+    },
+  });
+
+  map.on('click', function(e) {
+    var coordsObj = e.lngLat;
+    console.log('destination:  ', coordsObj);
+    canvas.style.cursor = '';
+    var endCoords = Object.keys(coordsObj).map(function(key) {
+      return coordsObj[key];
     });
-    
-    map.on('click', function(e) {
-      var coordsObj = e.lngLat;
-      console.log('destination:  ',coordsObj);
-      canvas.style.cursor = '';
-      var endCoords = Object.keys(coordsObj).map(function(key) {
-        return coordsObj[key];
-      });
-      console.log('Koordinaten destina  tion: ', endCoords);
-      var end = {
-        type: 'FeatureCollection',
-        features: [{
+    console.log('Koordinaten destina  tion: ', endCoords);
+    var end = {
+      type: 'FeatureCollection',
+      features: [
+        {
           type: 'Feature',
           properties: {},
           geometry: {
             type: 'Point',
-            coordinates: endCoords
-          }
-        }
-        ]
-      };
-      if (map.getLayer('end')) {
-        map.getSource('end').setData(end);
-      } else {
-        map.addLayer({
-          id: 'end',
-          type: 'circle',
-          source: {
-            type: 'geojson',
-            data: {
-              type: 'FeatureCollection',
-              features: [{
+            coordinates: endCoords,
+          },
+        },
+      ],
+    };
+    if (map.getLayer('end')) {
+      map.getSource('end').setData(end);
+    } else {
+      map.addLayer({
+        id: 'end',
+        type: 'circle',
+        source: {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [
+              {
                 type: 'Feature',
                 properties: {},
                 geometry: {
                   type: 'Point',
-                  coordinates: endCoords
-                }
-              }]
-            }
+                  coordinates: endCoords,
+                },
+              },
+            ],
           },
-          paint: {
-            'circle-radius': 10,
-            'circle-color': '#f30'
-          }
-        });
-      }
-      getRoute(endCoords);
-    });    
+        },
+        paint: {
+          'circle-radius': 10,
+          'circle-color': '#f30',
+        },
+      });
+    }
+    getRoute(endCoords);
   });
+});
 
 // +++ function to add pulsing dot for tracker node
-map.on('load', async function () {
-    const nodeCoords = await getData();
-    const labelLayerId = getlabelLayerId();
-    const pulsingDot = getPulsingDot();
+map.on('load', async function() {
+  const nodeCoords = await getData();
+  const labelLayerId = getlabelLayerId();
+  const pulsingDot = getPulsingDot();
 
-    add3dbuildingLayer(labelLayerId);
-    addPulsingDot(pulsingDot, nodeCoords);
-  
+  add3dbuildingLayer(labelLayerId);
+  addPulsingDot(pulsingDot, nodeCoords);
 
   // +++ jump to location of tracker node
-    map.jumpTo({ 'center': nodeCoords});
+  map.jumpTo({ center: nodeCoords });
 
-    //   function updateMarker () {
-          //if myCoords.timestamp.getData() > ....
-    //   }
+  //   function updateMarker () {
+  //if myCoords.timestamp.getData() > ....
+  //   }
 
-    // +++ function to set color of buildings by zooming in and out
-    map.setPaintProperty('building', 'fill-color', [
-      "interpolate",
-      ["exponential", 0.5],
-      ["zoom"],
-      15,
-      "rgba(49, 96, 227, 1)",
-      22,
-      "rgba(49, 96, 227, 0.5)"
-      ]);
-        
-    map.setPaintProperty('building', 'fill-opacity', [
-      "interpolate",
-      ["exponential", 0.5],
-      ["zoom"],
-      15,
-      0,
-      22,
-      1
-      ]);
+  // +++ function to set color of buildings by zooming in and out
+  map.setPaintProperty('building', 'fill-color', [
+    'interpolate',
+    ['exponential', 0.5],
+    ['zoom'],
+    15,
+    'rgba(49, 96, 227, 1)',
+    22,
+    'rgba(49, 96, 227, 0.5)',
+  ]);
 
-    // ++ function to zoom in by clicking on button
-    document.getElementById("zoomBtn").addEventListener('click', async function(){
+  map.setPaintProperty('building', 'fill-opacity', [
+    'interpolate',
+    ['exponential', 0.5],
+    ['zoom'],
+    15,
+    0,
+    22,
+    1,
+  ]);
+
+  // ++ function to zoom in by clicking on button
+  document
+    .getElementById('zoomBtn')
+    .addEventListener('click', async function() {
       var nodeCoords = await getData();
       map.flyTo({
-        center: [nodeCoords[0], nodeCoords[1]],   
-        zoom: 20
+        center: [nodeCoords[0], nodeCoords[1]],
+        zoom: 20,
       });
     });
 });
-
 
 //+++ adds navigation control to zoom in and out
 map.addControl(new mapboxgl.NavigationControl());
 
 function getlabelLayerId() {
-
   // Insert the layer beneath any symbol layer.
   var layers = map.getStyle().layers;
 
@@ -288,7 +302,7 @@ function add3dbuildingLayer(labelLayerId) {
           15,
           0,
           15.05,
-          ['get', 'height']
+          ['get', 'height'],
         ],
         'fill-extrusion-base': [
           'interpolate',
@@ -297,10 +311,10 @@ function add3dbuildingLayer(labelLayerId) {
           15,
           0,
           15.05,
-          ['get', 'min_height']
+          ['get', 'min_height'],
         ],
-        'fill-extrusion-opacity': 0.6
-      }
+        'fill-extrusion-opacity': 0.6,
+      },
     },
     labelLayerId
   );
@@ -333,13 +347,7 @@ function getPulsingDot() {
       // draw outer circle
       context.clearRect(0, 0, this.width, this.height);
       context.beginPath();
-      context.arc(
-        this.width / 2,
-        this.height / 2,
-        outerRadius,
-        0,
-        Math.PI * 2
-      );
+      context.arc(this.width / 2, this.height / 2, outerRadius, 0, Math.PI * 2);
       context.fillStyle = 'rgba(255, 200, 200,' + (1 - t) + ')';
       context.fill();
 
@@ -360,7 +368,7 @@ function getPulsingDot() {
 
       // return `true` to let the map know that the image was updated
       return true;
-    }
+    },
   };
   return pulsingDot;
 }
@@ -381,22 +389,23 @@ function addPulsingDot(pulsingDot, coords) {
             geometry: {
               type: 'Point',
 
-              coordinates: coords
-            }
-          }
-        ]
-      }
+              coordinates: coords,
+            },
+          },
+        ],
+      },
     },
     layout: {
-      'icon-image': 'pulsing-dot'
-    }
+      'icon-image': 'pulsing-dot',
+    },
   });
-
 }
 
 //here is where the ttn payload will be parsed as JSON
 async function getData() {
-  const response = await fetch(serverUrl + '/api/payloads/5da57802729dac6e5dc87c4c');
+  const response = await fetch(
+    serverUrl + '/api/payloads/5da57802729dac6e5dc87c4c'
+  );
   const myJson = await response.json();
   // findLastValidCoords(myJson.reverse()); would return first data
   let validCoords = findLastValidCoords(myJson);
@@ -404,28 +413,29 @@ async function getData() {
 }
 
 function getUserLoc() {
-  if ("geolocation" in navigator) { 
-    navigator.geolocation.getCurrentPosition(position => { 
-        var lat = position.coords.latitude;
-        var long = position.coords.longitude; 
-        var result = [lat, long];
-        return result;
-    }); 
-  } else { /* geolocation IS NOT available, handle it */
+  if ('geolocation' in navigator) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      var lat = position.coords.latitude;
+      var long = position.coords.longitude;
+      var result = [lat, long];
+      return result;
+    });
+  } else {
+    /* geolocation IS NOT available, handle it */
     popupBuild();
   }
 }
 
-function popupBuild(){
-  var popup = new mapboxgl.Popup({closeOnClick: false})
-  .setLngLat([-96, 37.8])
-  .setHTML('<h1>Route wird erst angezeigt, wenn User Location aktiv ist</h1>')
-  .addTo(map);
-  }
+function popupBuild() {
+  var popup = new mapboxgl.Popup({ closeOnClick: false })
+    .setLngLat([-96, 37.8])
+    .setHTML('<h1>Route wird erst angezeigt, wenn User Location aktiv ist</h1>')
+    .addTo(map);
+}
 
 function findLastValidCoords(arr) {
-  let i = arr.length-1;
-  for (i, i>=0; i--;) {
+  let i = arr.length - 1;
+  for (i, i >= 0; i--; ) {
     if (hasPayload(arr[i])) {
       if (hasLatLong(arr[i])) {
         let result = [];
@@ -452,4 +462,3 @@ function findLastValidCoords(arr) {
     }
   }
 }
-
