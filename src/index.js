@@ -5,7 +5,6 @@ import { addPulsingDot } from './lib/add-pulsing-dot';
 import { getData } from './lib/get-data';
 import { add3dbuildingLayer } from './lib/add-3d-building-layer';
 import { getRoute } from './lib/getRoute';
-import { selectTracker }  from './lib/selectTracker';
 import './css/style.css';
 
 document.addEventListener('DOMContentLoaded', function() {
