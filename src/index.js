@@ -5,6 +5,10 @@ import { addPulsingDot } from './lib/add-pulsing-dot';
 import { getData } from './lib/get-data';
 import { add3dbuildingLayer } from './lib/add-3d-building-layer';
 import { getRoute } from './lib/getRoute';
+import { dropdownOpen } from './lib/dropdownOpen';
+import { dropdownClose } from './lib/dropdownClose';
+import { openImpressum } from './lib/openImpressum';
+import { overlay } from './lib/aboutOverlay';
 import './css/style.css';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -201,4 +205,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
   //+++ adds navigation control to zoom in and out
   map.addControl(new mapboxgl.NavigationControl());
+
+  // +++ get Element by Id to add function
+  const dropdownCtrl = document.getElementById('dropdownCtrl');
+  if (dropdownCtrl !== undefined) {
+    dropdownCtrl.addEventListener('click', dropdownOpen);
+  }
+  // Close the dropdown if the user clicks outside of it
+  dropdownClose();
+
+  // open subpage from citylab-berlin.org as impressum
+  const impressum = document.getElementById('impressum');
+  if (impressum !== undefined) {
+    impressum.addEventListener('click', openImpressum);
+  }
+
+  // open overlay to explain what this page is about
+  const aboutOverlay = document.getElementById('about');
+  if (aboutOverlay !== undefined) {
+    aboutOverlay.addEventListener('click', overlay);
+  }
+
 });

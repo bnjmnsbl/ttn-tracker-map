@@ -1,3 +1,12 @@
+@import "dropdown.css";
+@import "overlay.css";
+:root {
+    --magenta:rgba(255, 100, 100, 1);
+    --blue: rgb(17, 17, 159);
+    --grey: rgb(215, 215, 215);
+    --darkgrey: rgb(140, 140, 140);
+}
+
 body { margin:0; padding:0; }
 
 html * {
@@ -5,8 +14,14 @@ html * {
    font-family: Helvetica,Arial,sans-serif !important;
 }
 
+h1 {
+    color: var(--blue);
+    font-size: 18px !important;
+    text-align: center;
+}
+
 #map {
-    max-width: 78%;
+    max-width: 80%;
     position: absolute;
     top:0;
     bottom:0;
@@ -15,7 +30,7 @@ html * {
 
 .sidebar{
     height: 100%;
-    width: 22%;
+    width: 20%;
     position: fixed;
     margin-top: 2.2em;
     z-index: 1;
@@ -32,22 +47,27 @@ html * {
     justify-content: space-between;
     padding-left: 1.8em;
     padding-right: 1.8em;
-    height: 25%
+    height: 12%
 }
 
 .menuBtn {
     display: flex;
     height: 3.6 em;
-    padding: 1em 2em; 
+    padding: 1em 3em; 
     border: none;
     border-radius: 5px;
     justify-content: center;
     align-items: center;
     color: #fff;
-    background:rgb(194, 194, 194);
+    background: var(--grey);
+    box-shadow: rgba(44, 48, 59, 0.1) 0px 2px 3px 0px;
+    transition: 0.3s;
 }
 
-.menuBtn:hover {cursor: pointer;}
+.menuBtn:hover {
+    cursor: pointer;
+    background: var(--darkgrey);
+}
 
 #navbar {
     position: fixed;
@@ -80,11 +100,17 @@ html * {
     padding: 0.2em 1em 0.2em 1em;
     border: none;
     border-radius: 5px;
-    font-size: 8px;
+    font-size: 14px;
     text-align: center;
     color: #fff;
-    background:rgba(255, 100, 100, 1);
+    background: var(--magenta);
+    box-shadow: rgba(44, 48, 59, 0.1) 0px 2px 3px 0px;
+    transition: 0.3s;
     }
+
+#zoomBtn:hover  {
+    background: var(--darkgrey);
+}
 
 #zoomBtn:hover{
     cursor: pointer;
@@ -109,30 +135,40 @@ html * {
 
 .footer{
     position: fixed;
-    display: inline-block; 
     text-align: center;
     bottom: 0;
-    right: 0;
     height: 8%;
     width: 22%;
     color: rgb(194, 194, 194);
-    padding-left: 1.8em;
-    padding-right: 1.8em;
-
 }
 
-.about{
-    position: relative;
-
+.wrapper {
+    display: flex;
+    justify-content: center;
+    left: 0;
+    padding-left: 2em;
+    padding-right: 3.4em;
 }
 
-.slash{
-    margin-left: 0.75em;
+#about{
+    margin: auto;
+}
+#about:hover{
+    cursor: pointer;
+    color: var(--darkgrey);
 }
 
-.impressum{
-    margin-left:0.75em;
-    position: absolute;
+#slash{
+    margin: auto;
+}
+
+#impressum{
+    margin: auto;
+}
+
+#impressum:hover{
+    cursor: pointer;
+    color: var(--darkgrey);
 }
 
 
