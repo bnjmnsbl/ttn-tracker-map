@@ -41,10 +41,10 @@
 
 #overlayText p {
     position: absolute;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding-left: 1em;
+    padding-right: 1em;
     padding-top: 50%;
-    width: 90%;
+    width: 84%;
     font-size: 12px !important;
     color: var(--blue);
     text-align: center;
