@@ -75,7 +75,6 @@ document.addEventListener('DOMContentLoaded', function() {
     req.open('GET', url2, true);
     req.onload = function() {
       let data = req.response.routes[0];
-      console.log('data aka. Request.response.routes[0]: ', data);
       var route = data.geometry.coordinates;
       var geojson = {
         type: 'Feature',
@@ -153,7 +152,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     map.on('click', function(e) {
       // get current GPS coordiantes of cursor --> first lng, then at
-      var coordsObj = e.lngLat;
+      console.log('status: ', status);
+      // let status = tsb.addEventListener('click', function () { console.log("WORKING")});
+      let coordsObj = e.lngLat;
       canvas.style.cursor = '';
       let coords = Object.keys(coordsObj).map(function(key) {
         return coordsObj[key];
@@ -174,7 +175,6 @@ document.addEventListener('DOMContentLoaded', function() {
       };
       console.log('end: ', end);
       if (map.getLayer('end')) {
-        // important: setData has to be 'end'
         map.getSource('end').setData(end);
       } else {
         map.addLayer({
@@ -202,6 +202,50 @@ document.addEventListener('DOMContentLoaded', function() {
           },
         });
       }
+
+      // add eventListener for Technologiestiftung
+      let tsb = document.getElementById('TSB');
+      tsb.addEventListener('click', function() {
+        let tsbCoords = [13.3425879, 52.4886385];
+        let tsb = {
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'Point',
+                coordinates: tsbCoords,
+              },
+            },
+          ],
+        };
+        map.getSource('end').setData(tsb);
+        getRoute(tsbCoords);
+      });
+
+      // add eventListener for active node
+
+      let activeNode = document.getElementById('activeNode');
+      activeNode.addEventListener('click', async function() {
+        let nodeCoords = await getData(serverUrl);
+        let node = {
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'Point',
+                coordinates: nodeCoords,
+              },
+            },
+          ],
+        };
+        map.getSource('end').setData(node);
+        getRoute(nodeCoords);
+
+      });
       getRoute(coords);
 
       // +++ GET DURATION AND DISTANCE
@@ -215,8 +259,6 @@ document.addEventListener('DOMContentLoaded', function() {
         ',' +
         coords[1] +
         '?geometries=geojson';
-
-      console.log('url2', url2);
 
       async function doAjax() {
         try {
@@ -239,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
             seconds
           );
 
-          // dispplay distance in div
+          // display distance in div
           let trackerDist = document.getElementById('trackerDistance');
           let el = 'Distance:</br>' + distance + ' km';
           if (el !== undefined) {

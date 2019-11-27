@@ -49,12 +49,12 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 18%;
+    height: 20%;
 }
 
 .menuBtn {
     display: flex;
-    max-width: 12em;
+    max-width: 14em;
     padding: 1em 3em; 
     border: none;
     border-radius: 5px;
@@ -170,8 +170,8 @@ h1 {
     display: flex;
     justify-content: center;
     left: 0;
-    padding-left: 2em;
-    padding-right: 3.4em;
+    padding-left: 2.2em;
+    padding-right: 3.6em;
 }
 
 #about{
