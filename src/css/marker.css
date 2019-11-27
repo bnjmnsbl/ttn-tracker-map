@@ -1,0 +1,22 @@
+
+.marker {
+    background-image: url("https://www.oseberg.fr/wp-content/uploads/2017/11/cropped-favicon.png");
+    background-size: cover;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+.mapboxgl-popup {
+max-width: 140px;
+}
+
+.mapboxgl-popup-content {
+text-align: center;
+font-family: 'Open Sans', sans-serif;
+}
+
+.mapboxgl-popup-content p {
+    font-size: 12px !important;
+}

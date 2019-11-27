@@ -8,7 +8,7 @@
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <!-- <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.2/mapbox-gl.js"></script> -->
+    <!-- <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.js"></script> -->
 
     <link
       href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.2/mapbox-gl.css"
@@ -18,52 +18,57 @@
 
 
   <body>
-    <div class="sidebar">
-      <div class="menu">
-          <h1>Want to track?</h1>
-          <div class="trackerDropdown">
-            <button id="dropdownCtrl" class="menuBtn">Select Tracker</button>
-                <div id="trackerDropdown" class="dropdown-content">
-                    <a href="#">Tracker One</a>
-                    <a href="#">Tracker Two</a>
-                    <a href="#">Tracker Three</a>
-                </div>
-          </div>
-      <div id="overlay">
-        <div class="headerSidebar">
-          <a href="javascript:void(0)" id="closebtn">&times;</a>
-          <h1>About</h1>
-          <div id="overlayText">
-            <p>Du hast ein Funkloch? Kein Problem!
-              <br></br>
-              Die Tracker dieser Web-App nutzen das sogenannte LoRaWan um ihre GPS-Koordinaten zu übertragen.
-              Sie sind selbst bei Massen-veranstaltungen oder an der Bushalte in Brandenburg trackbar.
-              <br></br>
-              Der TTN GPS-Tracker ist ein Projekt des CityLAB Berlin.</p>
-          </div>
-        </div>
-      </div> 
-      </div>
-      <div class="footer">
-        <div class="wrapper">
-          <span id="about">About</span>
-          <span id="slash">|</span>
-          <span id="impressum">Impressum</span>
-        </div>
-      </div> 
+    <div class="sidebar"> 
+          <div class="menu">
+              <div class="trackerDropdown">
+                <button id="dropdownCtrl" class="menuBtn">Track me to: </button>
+                    <div id="trackerDropdown" class="dropdown-content">
+                        <a id="TSB" href="#">Technologiestiftung Berlin</a>
+                        <a id="activeNode" href="#">Active GPS-node</a>
+                    </div>
+              </div>
 
+              <div id="overlay">
+                <div class="headerSidebar">
+                  <a href="javascript:void(0)" id="closebtn">&times;</a>
+                  <h1>About</h1>
+                  <div id="overlayText">
+                    <p>Du hast ein Funkloch? Kein Problem!
+                      <br></br>
+                      Die Tracker dieser Web-App nutzen das sogenannte LoRaWan um ihre GPS-Koordinaten zu übertragen.
+                      Sie sind selbst bei Massen-veranstaltungen oder an der Bushalte in Brandenburg trackbar.
+                      <br></br>
+                      Der TTN GPS-Tracker ist ein Projekt des CityLAB Berlin.</p>
+                  </div>
+                </div>
+              </div> 
+          </div>
+          <div class="footer">
+            <div class="wrapper">
+              <span id="about">About</span>
+              <span id="slash">|</span>
+              <span id="impressum">Impressum</span>
+            </div>
+          </div> 
+<!-- trackerInfo is dynamically generated content -->
+          <div id="trackerInfo">
+            <div id="trackerDistance">
+              <p>Distance:</br>0 km</p>
+            </div>
+            <div id="trackerDuration">
+              <p>Duration with bike:</br>0 min 0 sec</p>
+            </div>
+          </div>
     </div>
 
-    <div id="map"></div>
-
-    <nav id="navbar">
-      <a class="navbar-item" href="https://www.citylab-berlin.org" target="_blank">
-        <img class="lablogo" src="./images/citylab-logo.png">
-      </a>
-      <button id='zoomBtn'>Zoom to GPS-Tracker</button>
-
-      </a>
-    </nav>
+    <div id="map">
+      <nav id="navbar">
+        <a class="navbar-item" href="https://www.citylab-berlin.org" target="_blank">
+          <img class="lablogo" src="./images/citylab-logo.png">
+        </a>
+        <button id='zoomBtn'>Zoom to active GPS-node</button>
+      </nav>
+    </div>
 
     <script src="main.js"></script>
 

@@ -8,6 +8,7 @@
 .dropdown-content {
         display: none;
         position: absolute;
+        max-width: 11.5em; 
         background: var(--grey);
         overflow: auto;
         z-index: 1;
@@ -19,13 +20,14 @@
 
 .dropdown-content a {
     color: rgb(255, 255, 255);
-    padding: 1em 3em; 
+    padding: 1em 1em; 
+    text-align: center;
     text-decoration: none;
     display: block;
   }
 
 .dropdown-content a:hover {
-    background: var(--darkgrey);
+    background: var(--blue);
   }
 
 .show {

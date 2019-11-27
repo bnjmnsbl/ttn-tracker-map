@@ -1,12 +1,24 @@
-import mapboxgl from 'mapbox-gl/dist/mapbox-gl.js';
-//+++ function to get route from starting point (Node) to another point (User)
-export function getRoute(end, map) {
+export function getRoute(end) {
   // make a directions request using cycling profile
   // start will always be the GPSnode -- only the end or destination will change
-  var start = [52.52437, 13.41053];
-  console.log(start);
-  var url =
-    'https://api.mapbox.com/directions/v5/mapbox/cycling/' +
+  const start = [13.385947, 52.485053];
+  console.log('Starting point: ', start);
+
+  // very depressing Mapbox GL API --> not working!
+  // var url =
+  //   'https://api.mapbox.com/directions/v5/mapbox/cycling/' +
+  //   start[0] +
+  //   ',' +
+  //   start[1] +
+  //   ';' +
+  //   end[1] +
+  //   ',' +
+  //   end[0] +
+  //   '?steps=true&geometries=geojson&access_token=' +
+  //   mapboxgl.accessToken;
+
+  let url2 =
+    'http://osrm-docker-bikesharing-dev2.eu-central-1.elasticbeanstalk.com/route/v1/bicycle/' +
     start[0] +
     ',' +
     start[1] +
@@ -14,18 +26,18 @@ export function getRoute(end, map) {
     end[0] +
     ',' +
     end[1] +
-    '?steps=true&geometries=geojson&access_token=' +
-    mapboxgl.accessToken;
-  console.log(url);
+    '?geometries=geojson';
+
+  console.log('API Url: ', url2);
+
   // make an XHR request https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
-  var req = new XMLHttpRequest();
+  let req = new XMLHttpRequest();
   req.responseType = 'json';
-  req.open('GET', url, true);
+  req.open('GET', url2, true);
   req.onload = function() {
-    var data = req.response.routes[0];
-    console.log(data);
+    let data = req.response.routes[0];
+    console.log('data aka. Request.response.routes[0]: ', data);
     var route = data.geometry.coordinates;
-    console.log(route);
     var geojson = {
       type: 'Feature',
       properties: {},
@@ -34,11 +46,12 @@ export function getRoute(end, map) {
         coordinates: route,
       },
     };
+    console.log('here i am: ', geojson);
     // if the route already exists on the map, reset it using setData
-    if (map.getSource('route')) {
-      map.getSource('route').setData(geojson);
-    } else {
-      // otherwise, make a new request
+    // if (map.getSource('route')) {
+    //   map.getSource('route').setData(geojson);
+    // } else {
+    //   // otherwise, make a new request
       map.addLayer({
         id: 'route',
         type: 'line',
@@ -58,12 +71,12 @@ export function getRoute(end, map) {
           'line-cap': 'round',
         },
         paint: {
-          'line-color': '#3887be',
+          'line-color': '#11119f',
           'line-width': 5,
-          'line-opacity': 0.75,
+          'line-opacity': 0.65,
         },
       });
-    }
+    
     // add turn instructions here at the end
   };
   req.send();

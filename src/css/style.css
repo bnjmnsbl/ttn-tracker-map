@@ -1,8 +1,10 @@
 @import "dropdown.css";
 @import "overlay.css";
+@import "marker.css";
+
 :root {
-    --magenta:rgba(255, 100, 100, 1);
-    --blue: rgb(17, 17, 159);
+    --magenta:#ff6464;
+    --blue: #11119f;
     --grey: rgb(215, 215, 215);
     --darkgrey: rgb(140, 140, 140);
 }
@@ -13,6 +15,8 @@ html * {
    font-size: 14px !important;
    font-family: Helvetica,Arial,sans-serif !important;
 }
+
+
 
 h1 {
     color: var(--blue);
@@ -45,29 +49,49 @@ h1 {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding-left: 1.8em;
-    padding-right: 1.8em;
-    height: 12%
+    height: 18%;
 }
 
 .menuBtn {
     display: flex;
-    height: 3.6 em;
+    max-width: 12em;
     padding: 1em 3em; 
     border: none;
     border-radius: 5px;
     justify-content: center;
     align-items: center;
     color: #fff;
-    background: var(--grey);
+    background: var(--blue);
     box-shadow: rgba(44, 48, 59, 0.1) 0px 2px 3px 0px;
     transition: 0.3s;
 }
 
 .menuBtn:hover {
     cursor: pointer;
-    background: var(--darkgrey);
+    background: var(--grey);
 }
+
+#trackerInfo {
+    justify-content: center;
+    align-items: center;
+    margin-top: 2.2em;
+}
+
+
+#trackerInfo p {
+    color: var(--blue);
+    font-size: 16px !important;
+    font-weight: bold;
+    text-align: center;
+}
+
+#trackerDistance {
+    display: block;
+}
+#trackerDuration {
+    display: block;
+}
+
 
 #navbar {
     position: fixed;
