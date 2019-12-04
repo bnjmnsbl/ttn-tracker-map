@@ -55,7 +55,7 @@ h1 {
 .menuBtn {
     display: flex;
     max-width: 14em;
-    padding: 1em 3em; 
+    padding: 1em 2.5em; 
     border: none;
     border-radius: 5px;
     justify-content: center;
@@ -85,10 +85,26 @@ h1 {
     text-align: center;
 }
 
-#trackerDistance {
-    display: block;
+#trackerInfo p#bike{
+    font-size: 34px !important;
 }
-#trackerDuration {
+#trackerInfo p#highway{
+    font-size: 34px !important;
+}
+
+#trackerInfo #duration p{
+    margin: -1.8em;
+}
+
+#trackerInfo #distance p{
+    margin: -1.8em;
+}
+
+.trackerDistance {
+    display: block;
+    margin: 4em auto;
+}
+.trackerDuration {
     display: block;
 }
 

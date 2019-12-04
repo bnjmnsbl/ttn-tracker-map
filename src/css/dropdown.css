@@ -8,7 +8,7 @@
 .dropdown-content {
         display: none;
         position: absolute;
-        max-width: 11.5em; 
+        max-width: 14em; 
         background: var(--grey);
         overflow: auto;
         z-index: 1;

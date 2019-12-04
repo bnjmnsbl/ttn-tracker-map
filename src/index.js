@@ -119,11 +119,8 @@ document.addEventListener('DOMContentLoaded', function() {
     req.send();
   }
 
-  map.on('load', function() {
-    // make an initial directions request that
-    // starts and ends at the same location
+  map.on('click', function(e) {
     getRoute(start);
-
     // Add starting point to the map
     map.addLayer({
       id: 'startingpoint',
@@ -150,17 +147,62 @@ document.addEventListener('DOMContentLoaded', function() {
       },
     });
 
-    map.on('click', function(e) {
-      // get current GPS coordiantes of cursor --> first lng, then at
-      console.log('status: ', status);
-      // let status = tsb.addEventListener('click', function () { console.log("WORKING")});
-      let coordsObj = e.lngLat;
-      canvas.style.cursor = '';
-      let coords = Object.keys(coordsObj).map(function(key) {
-        return coordsObj[key];
+    // get current GPS coordiantes of cursor --> first lng, then at
+    console.log('status: ', status);
+    let coordsObj = e.lngLat;
+    canvas.style.cursor = '';
+    let coords = Object.keys(coordsObj).map(function(key) {
+      return coordsObj[key];
+    });
+    console.log('Koordinaten destination: ', coords);
+    let end = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'Point',
+            coordinates: coords,
+          },
+        },
+      ],
+    };
+    console.log('end: ', end);
+    if (map.getLayer('end')) {
+      map.getSource('end').setData(end);
+    } else {
+      map.addLayer({
+        id: 'end',
+        type: 'circle',
+        source: {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [
+              {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                  type: 'Point',
+                  coordinates: coords,
+                },
+              },
+            ],
+          },
+        },
+        paint: {
+          'circle-radius': 8,
+          'circle-color': '#11119f',
+        },
       });
-      console.log('Koordinaten destination: ', coords);
-      let end = {
+    }
+
+    // add eventListener for Technologiestiftung
+    let tsb = document.getElementById('TSB');
+    tsb.addEventListener('click', function() {
+      let tsbCoords = [13.3425879, 52.4886385];
+      let tsb = {
         type: 'FeatureCollection',
         features: [
           {
@@ -168,153 +210,131 @@ document.addEventListener('DOMContentLoaded', function() {
             properties: {},
             geometry: {
               type: 'Point',
-              coordinates: coords,
+              coordinates: tsbCoords,
             },
           },
         ],
       };
-      console.log('end: ', end);
-      if (map.getLayer('end')) {
-        map.getSource('end').setData(end);
-      } else {
-        map.addLayer({
-          id: 'end',
-          type: 'circle',
-          source: {
-            type: 'geojson',
-            data: {
-              type: 'FeatureCollection',
-              features: [
-                {
-                  type: 'Feature',
-                  properties: {},
-                  geometry: {
-                    type: 'Point',
-                    coordinates: coords,
-                  },
-                },
-              ],
-            },
-          },
-          paint: {
-            'circle-radius': 8,
-            'circle-color': '#11119f',
-          },
-        });
+      map.getSource('end').setData(tsb);
+      getRoute(tsbCoords);
+
+      // display distance in div
+      let trackerDist = document.getElementById('distance');
+      // HARD CODED DISTANCE !!!
+      let el = 3.56 + ' km';
+      if (el !== undefined) {
+        trackerDist.innerHTML = '<p>' + el + '</p>';
       }
-
-      // add eventListener for Technologiestiftung
-      let tsb = document.getElementById('TSB');
-      tsb.addEventListener('click', function() {
-        let tsbCoords = [13.3425879, 52.4886385];
-        let tsb = {
-          type: 'FeatureCollection',
-          features: [
-            {
-              type: 'Feature',
-              properties: {},
-              geometry: {
-                type: 'Point',
-                coordinates: tsbCoords,
-              },
-            },
-          ],
-        };
-        map.getSource('end').setData(tsb);
-        getRoute(tsbCoords);
-      });
-
-      // add eventListener for active node
-
-      let activeNode = document.getElementById('activeNode');
-      activeNode.addEventListener('click', async function() {
-        let nodeCoords = await getData(serverUrl);
-        let node = {
-          type: 'FeatureCollection',
-          features: [
-            {
-              type: 'Feature',
-              properties: {},
-              geometry: {
-                type: 'Point',
-                coordinates: nodeCoords,
-              },
-            },
-          ],
-        };
-        map.getSource('end').setData(node);
-        getRoute(nodeCoords);
-
-      });
-      getRoute(coords);
-
-      // +++ GET DURATION AND DISTANCE
-      let url2 =
-        'http://osrm-docker-bikesharing-dev2.eu-central-1.elasticbeanstalk.com/route/v1/bicycle/' +
-        start[0] +
-        ',' +
-        start[1] +
-        ';' +
-        coords[0] +
-        ',' +
-        coords[1] +
-        '?geometries=geojson';
-
-      async function doAjax() {
-        try {
-          const res = await fetch(url2);
-          const data = await res.json();
-          let temp = data.routes[0].distance / 1000;
-          const distance = temp.toFixed(2);
-          const duration = data.routes[0].duration;
-          const hours = Math.floor(duration / 3600);
-          const minutes = Math.floor((duration % 3600) / 60);
-          const seconds = Math.floor(duration % 60);
-
-          console.log('Entfernung: ', distance);
-          console.log(
-            'Stunden:',
-            hours,
-            'Minuten: ',
-            minutes,
-            'Sekunden: ',
-            seconds
-          );
-
-          // display distance in div
-          let trackerDist = document.getElementById('trackerDistance');
-          let el = 'Distance:</br>' + distance + ' km';
-          if (el !== undefined) {
-            trackerDist.innerHTML = '<p>' + el + '</p>';
-          }
-          // override distance if already existing
-          else {
-            while (trackerDist.firstChild) {
-              trackerDist.removeChild(trackerDist.firstChild);
-              trackerDist.innerHTML = '<p>' + el + '</p>';
-            }
-          }
-
-          // dispplay duration in div
-          let trackerDur = document.getElementById('trackerDuration');
-          let el2 =
-            'Duration with bike:</br>' + minutes + ' min' + seconds + ' sec';
-          if (el2 !== undefined) {
-            trackerDur.innerHTML = '<p>' + el2 + '</p>';
-          }
-          // override distance if already existing
-          else {
-            while (trackerDur.firstChild) {
-              trackerDur.removeChild(trackerDur.firstChild);
-              trackerDur.innerHTML = '<p>' + el2 + '</p>';
-            }
-          }
-        } catch (error) {
-          console.log('Error:' + error);
+      // override distance if already existing
+      else {
+        while (trackerDist.firstChild) {
+          trackerDist.removeChild(trackerDist.firstChild);
+          trackerDist.innerHTML = '<p>' + el + '</p>';
         }
       }
-      doAjax();
+
+      // HARD CODED DURATION
+      let trackerDur = document.getElementById('duration');
+      let el2 = 16 + ' min ' + 8 + ' sec';
+      if (el2 !== undefined) {
+        trackerDur.innerHTML = '<p>' + el2 + '</p>';
+      }
+      // override distance if already existing
+      else {
+        while (trackerDur.firstChild) {
+          trackerDur.removeChild(trackerDur.firstChild);
+          trackerDur.innerHTML = '<p>' + el2 + '</p>';
+        }
+      }
     });
+
+    // add eventListener for active node
+    let activeNode = document.getElementById('activeNode');
+    activeNode.addEventListener('click', async function() {
+      let nodeCoords = await getData(serverUrl);
+      let node = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'Point',
+              coordinates: nodeCoords,
+            },
+          },
+        ],
+      };
+      map.getSource('end').setData(node);
+      getRoute(nodeCoords);
+    });
+    getRoute(coords);
+
+    // +++ GET DURATION AND DISTANCE
+    let url2 =
+      'http://osrm-docker-bikesharing-dev2.eu-central-1.elasticbeanstalk.com/route/v1/bicycle/' +
+      start[0] +
+      ',' +
+      start[1] +
+      ';' +
+      coords[0] +
+      ',' +
+      coords[1] +
+      '?geometries=geojson';
+
+    async function doAjax() {
+      try {
+        const res = await fetch(url2);
+        const data = await res.json();
+        let temp = data.routes[0].distance / 1000;
+        const distance = temp.toFixed(2);
+        const duration = data.routes[0].duration;
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor((duration % 3600) / 60);
+        const seconds = Math.floor(duration % 60);
+
+        console.log('Entfernung: ', distance);
+        console.log(
+          'Stunden:',
+          hours,
+          'Minuten: ',
+          minutes,
+          'Sekunden: ',
+          seconds
+        );
+
+        // display distance in div
+        let trackerDist = document.getElementById('distance');
+        let el = distance + ' km';
+        if (el !== undefined) {
+          trackerDist.innerHTML = '<p>' + el + '</p>';
+        }
+        // override distance if already existing
+        else {
+          while (trackerDist.firstChild) {
+            trackerDist.removeChild(trackerDist.firstChild);
+            trackerDist.innerHTML = '<p>' + el + '</p>';
+          }
+        }
+
+        // dispplay duration in div
+        let trackerDur = document.getElementById('duration');
+        let el2 = minutes + ' min ' + seconds + ' sec';
+        if (el2 !== undefined) {
+          trackerDur.innerHTML = '<p>' + el2 + '</p>';
+        }
+        // override distance if already existing
+        else {
+          while (trackerDur.firstChild) {
+            trackerDur.removeChild(trackerDur.firstChild);
+            trackerDur.innerHTML = '<p>' + el2 + '</p>';
+          }
+        }
+      } catch (error) {
+        console.log('Error:' + error);
+      }
+    }
+    doAjax();
   });
   // ++++ THIS IS WHERE ROUTING FUNCTION ENDS ++++
 

@@ -21,7 +21,7 @@
     <div class="sidebar"> 
           <div class="menu">
               <div class="trackerDropdown">
-                <button id="dropdownCtrl" class="menuBtn">Track me to: </button>
+                <button id="dropdownCtrl" class="menuBtn">Track me to &#x2003; &#x27EB; &#x27EB; &#x27EB;</button>
                     <div id="trackerDropdown" class="dropdown-content">
                         <a id="TSB" href="#">Technologiestiftung Berlin</a>
                         <a id="activeNode" href="#">Active GPS-node</a>
@@ -53,11 +53,17 @@
           </div> 
 <!-- trackerInfo is dynamically generated content -->
           <div id="trackerInfo">
-            <div id="trackerDistance">
-              <p>Distance:</br>0 km</p>
+            <div class="trackerDistance">
+              <p id="highway">&#x1F6E3;</p>
+              <div id="distance">
+                <p>0 km</p>
+              </div>
             </div>
-            <div id="trackerDuration">
-              <p>Duration with bike:</br>0 min 0 sec</p>
+            <div class="trackerDuration">
+              <p id="bike"> &#x1F6B2;</p>
+              <div id="duration">
+              <p >0 min 0 sec</p>
+              </div>
             </div>
           </div>
     </div>
