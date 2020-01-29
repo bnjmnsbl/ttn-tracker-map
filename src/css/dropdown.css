@@ -1,0 +1,35 @@
+.trackerDropdown {
+    position: relative;
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+.dropdown-content {
+        display: none;
+        position: absolute;
+        max-width: 14em; 
+        background: var(--grey);
+        overflow: auto;
+        z-index: 1;
+        border: none;
+        border-radius: 5px;
+        box-shadow: rgba(44, 48, 59, 0.1) 0px 2px 3px 0px;
+        transition: 0.3s;
+}
+
+.dropdown-content a {
+    color: rgb(255, 255, 255);
+    padding: 1em 1em; 
+    text-align: center;
+    text-decoration: none;
+    display: block;
+  }
+
+.dropdown-content a:hover {
+    background: var(--blue);
+  }
+
+.show {
+    display: block;
+}
