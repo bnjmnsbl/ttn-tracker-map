@@ -1,3 +1,4 @@
+/* eslint-disable brace-style */
 import mapboxgl from 'mapbox-gl/dist/mapbox-gl.js';
 import { getlabelLayerId } from './lib/get-lable-layer-id';
 import { getPulsingDot } from './lib/get-pulsing-dot';
@@ -224,6 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (el !== undefined) {
         trackerDist.innerHTML = '<p>' + el + '</p>';
       }
+
       // override distance if already existing
       else {
         while (trackerDist.firstChild) {
