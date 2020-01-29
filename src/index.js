@@ -8,7 +8,6 @@ import { dropdownOpen } from './lib/dropdownOpen';
 import { dropdownClose } from './lib/dropdownClose';
 import { openImpressum } from './lib/openImpressum';
 import { overlay } from './lib/aboutOverlay';
-// import {getRoute } from './lib/getRoute';
 import './css/style.css';
 
 document.addEventListener('DOMContentLoaded', function() {
